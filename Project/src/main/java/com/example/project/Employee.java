@@ -11,7 +11,6 @@ public class Employee implements Serializable {
     private String name;
     private String grade;
 
-    private final Set<String> assignedUsernames = new HashSet<>();
     public Employee() {
     }
 
@@ -21,14 +20,10 @@ public class Employee implements Serializable {
     }
 
     public Employee(String username, String password, String name, String grade) {
-        if (assignedUsernames.contains(username)){
-            throw new IllegalArgumentException("Username already taken : "+username);
-        }
         this.username = username;
         this.password = password;
         this.name = name;
         this.grade = grade;
-        assignedUsernames.add(username);
     }
 
     public Employee(String name, String grade,String s) {

@@ -2,26 +2,24 @@ package com.example.cui_administration_app2;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -32,6 +30,7 @@ public class HelloApplication extends Application {
     static Employee employee = new Employee();
     static ArrayList<Employee> employees = new ArrayList<>();
     static ObservableList<Employee> list = FXCollections.observableArrayList();
+    static ArrayList<Computer> computers = new ArrayList<>();
     private Stage globalStage;
     private Scene scene;
     @Override
@@ -125,24 +124,16 @@ public class HelloApplication extends Application {
                 addEmployee(stage).show();
             }
         });
-        button4.setOnAction(new EventHandler<ActionEvent>() {
+        button2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                searchEmployee(stage).show();
+                addComputer(stage).show();
             }
         });
-        button7.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                Platform.exit();
-            }
-        });
-        backButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                globalStage.setScene(scene);
-            }
-        });
+        button4.setOnAction(actionEvent -> searchEmployee(stage).show());
+        button6.setOnAction(actionEvent -> searchComputer(stage).show());
+        button7.setOnAction(actionEvent -> Platform.exit());
+        backButton.setOnAction(actionEvent -> globalStage.setScene(scene));
 
         grid.getChildren().addAll(button1,button2,button3,button4,button5,button6,button7);
         GridPane.setRowIndex(button1 ,2);
@@ -216,34 +207,67 @@ public class HelloApplication extends Application {
         Label noGradeSelected = new Label();
         noGradeSelected.setFont(Font.font("Times New Roman",20));
 
-        TableView tableView = new TableView();
-        TableColumn<Employee ,String> employeeNameColumn = new TableColumn<>("Employee Name");
-        employeeNameColumn.setCellValueFactory(new PropertyValueFactory<Employee,String>("name"));
-        employeeNameColumn.setPrefWidth(150);
+        Label selectEmployeeLabel = new Label("Select Employee Type : ");
 
-        TableColumn<Employee, String> employeeGradeColumn = new TableColumn<>("Employee Grade");
-        employeeGradeColumn.setCellValueFactory(new PropertyValueFactory<Employee ,String>("grade"));
-        employeeGradeColumn.setPrefWidth(150);
+        ToggleGroup toggleGroup = new ToggleGroup();
+        RadioButton opt1 = new RadioButton("HOD");
+        RadioButton opt2 = new RadioButton("Director");
+        RadioButton opt3 = new RadioButton("Lab Staff");
 
-        ScrollPane scroll = new ScrollPane();
-        scroll.setPrefSize(320,200);
-        scroll.setContent(tableView);
+        opt1.setToggleGroup(toggleGroup);
+        opt2.setToggleGroup(toggleGroup);
+        opt3.setToggleGroup(toggleGroup);
 
-        tableView.setItems(list);
+        HBox hBox = new HBox();
+        hBox.getChildren().addAll(opt1,opt2,opt3);
 
-        tableView.getColumns().addAll(employeeNameColumn,employeeGradeColumn);
+
+//        TableView tableView = new TableView();
+//        TableColumn<Employee ,String> employeeNameColumn = new TableColumn<>("Employee Name");
+//        employeeNameColumn.setCellValueFactory(new PropertyValueFactory<Employee,String>("name"));
+//        employeeNameColumn.setPrefWidth(150);
+
+//        TableColumn<Employee, String> employeeGradeColumn = new TableColumn<>("Employee Grade");
+//        employeeGradeColumn.setCellValueFactory(new PropertyValueFactory<Employee ,String>("grade"));
+//        employeeGradeColumn.setPrefWidth(150);
+//
+//        ScrollPane scroll = new ScrollPane();
+//        scroll.setPrefSize(320,200);
+//        scroll.setContent(tableView);
+//
+//        tableView.setItems(list);
+//
+//        tableView.getColumns().addAll(employeeNameColumn,employeeGradeColumn);
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                employee.setName(nameField.getText());
-                employee.setGrade(grades.getValue());
+
+                if (opt1.isSelected()){
                 String name = nameField.getText();
                 String grade = grades.getValue();
-                Employee employee1 = new Employee(name,grade);
+                Employee employee1 = new HOD(name,grade);
                 list.add(employee1);
-                employees.add(employee1);
+                //employees.add(employee1);
+                }
+                if (opt2.isSelected()){
+                    String name = nameField.getText();
+                    String grade = grades.getValue();
+                    Employee employee1 = new Director(name,grade);
+                    list.add(employee1);
+                   // employees.add(employee1);
+                }
+                if (opt3.isSelected()){
+                    String name = nameField.getText();
+                    String grade = grades.getValue();
+                    Employee employee1 = new LabStaff(name,grade);
+                    list.add(employee1);
+                    //employees.add(employee1);
+                }
+                employee.setName(nameField.getText());
+                employee.setGrade(grades.getValue());
                 if(grades.getValue()==null){
                     noGradeSelected.setText("Please select a grade ");
+                    noGradeSelected.setTextFill(Color.RED);
                 }
                 else if (grades.getValue()!=null){
                     noGradeSelected.setText("");
@@ -263,13 +287,15 @@ public class HelloApplication extends Application {
 
         root.add(backButton,0,0);
         root.add(title,0,1);
-        root.add(scroll,0,2,2,1);
-        root.add(name,0,3);
-        root.add(nameField,3,3);
-        root.add(grade,0,4);
-        root.add(grades,0,5);
-        root.add(btn,0,6);
-        root.add(noGradeSelected,0,7);
+        root.add(selectEmployeeLabel,0,2);
+        root.add(hBox,0,3);
+        //root.add(scroll,0,2,2,1);
+        root.add(name,0,4);
+        root.add(nameField,1,4);
+        root.add(grade,0,5);
+        root.add(grades,0,6);
+        root.add(btn,0,7);
+        root.add(noGradeSelected,0,8);
         Scene scene = new Scene(root,700,700);
         stage.setScene(scene);
         return stage;
@@ -327,4 +353,148 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         return stage;
     }
+
+    public Stage addComputer (Stage stage ){
+
+        GridPane root = new GridPane();
+        root.setPadding(new Insets(20,20,20,20));
+        root.setVgap(10);
+        root.setHgap(10);
+
+        Label title = new Label();
+        title.setText("Enter Computer Data ");
+        title.setFont(Font.font("Times New Roman",20));
+
+        Label systemID = new Label("Enter System ID : ");
+        TextField systemIdField = new TextField();
+        systemIdField.setMaxWidth(300);
+
+        Label systemName = new Label("Enter System Name : ");
+        TextField systemNameField = new TextField();
+        systemNameField.setMaxWidth(300);
+
+        Label systemSpeed = new Label("Enter System Speed : ");
+        TextField systemSpeedField = new TextField();
+        systemSpeedField.setMaxWidth(300);
+
+        Label systemRamSize = new Label("Enter System Ram Size : ");
+        TextField systemRamSizeField = new TextField();
+        systemRamSizeField.setMaxWidth(300);
+
+        Label systemHardDiskSize = new Label("Enter System Hard Disk Size : ");
+        TextField systemHardDiskSizeField = new TextField();
+        systemHardDiskSizeField.setMaxWidth(300);
+
+        Label lcdMakeModel = new Label("Enter System LCD Make Model : ");
+        TextField  lcdMakeModelField = new TextField();
+        systemIdField.setMaxWidth(300);
+
+        Button backButton = new Button();
+        backButton.setText("⬅ Go Back");
+
+        Button submit = new Button();
+        submit.setText("Submit");
+        backButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                getMenu(stage).show();
+            }
+        });
+
+        root.add(backButton,0,0);
+        root.add(title,0,1);
+        root.add(systemID,0,2);
+        root.add(systemIdField,1,2);
+        root.add(systemName,0,3);
+        root.add(systemNameField,1,3);
+        root.add(systemSpeed,0,4);
+        root.add(systemSpeedField,1,4);
+        root.add(systemRamSize,0,5);
+        root.add(systemRamSizeField,1,5);
+        root.add(systemHardDiskSize,0,6);
+        root.add(systemHardDiskSizeField,1,6);
+        root.add(lcdMakeModel,0,7);
+        root.add(lcdMakeModelField,1,7);
+        root.add(submit,0,8);
+
+        submit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                String id = systemIdField.getText();
+                String name = systemNameField.getText();
+                String speed = systemSpeedField.getText();
+                String ram = systemRamSizeField.getText();
+                String hardDiskSize = systemHardDiskSizeField.getText();
+                String lcdMakeModel = lcdMakeModelField.getText();
+
+                Computer computer = new Computer(id,name,speed,ram,hardDiskSize,lcdMakeModel);
+                computers.add(computer);
+                for (Computer c : computers){
+                    System.out.println(c);
+                }
+            }
+        });
+
+        Scene scene = new Scene(root, 500,500);
+        stage.setScene(scene);
+
+        return stage;
+    }
+    public Stage searchComputer (Stage stage){
+
+        String computerID;
+
+        Button backButton = new Button("⬅ Go Back");
+
+        Label searchComputerLabel  = new Label("Search Computer :");
+        TextField searchComputer = new TextField();
+
+        Label foundComputer = new Label();
+        foundComputer.setFont(Font.font("Times New Roman ",14));
+
+        Button submit = new Button("Submit");
+
+        submit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+
+                for (Computer computer : computers){
+
+                Lab lab = new Lab();
+                if (computer.getSystemId().equals(searchComputer.getText())){
+                    foundComputer.setTextFill(Color.BLACK);
+                    lab.getComputer(searchComputer.getText());
+                    foundComputer.setText("Computer ID : "+computer.getSystemId()+" , Computer Name : "+computer.getSystemName()+
+                    " , Computer Speed : "+computer.getSystemSpeed()+"\n , Computer RAM : "+computer.getRamSize()+
+                    " , Computer Hard Disk Size : "+computer.getHardDiskSize()+", LCD make model : "+ computer.getLcdMakeModel());
+                }
+                else if (computer.getSystemId()!=searchComputer.getText()){
+                    foundComputer.setTextFill(Color.RED);
+                    foundComputer.setText("No Computer Found! ");
+                }
+                }
+            }
+        });
+        backButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                getMenu(stage).show();
+            }
+        });
+        GridPane gridPane = new GridPane();
+        gridPane.setVgap(10);
+        gridPane.setHgap(10);
+
+
+        gridPane.add(backButton,0,0);
+        gridPane.add(searchComputerLabel,0,1);
+        gridPane.add(searchComputer,1,1);
+        gridPane.add(submit,0,2);
+        gridPane.add(foundComputer,0,3);
+
+        Scene scene1 = new Scene(gridPane,700,700);
+        stage.setScene(scene1);
+        return stage;
+    }
+
 }

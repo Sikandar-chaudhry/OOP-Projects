@@ -10,6 +10,11 @@ public class Lab {
     private ArrayList<Computer> computers= new ArrayList<>();
     public Lab() {
     }
+
+    public Lab(ArrayList<Computer> computers) {
+        this.computers = computers;
+    }
+
     public Lab(LabStaff incharge, boolean hasProjector, String labName, ArrayList<Computer> computers) {
         this.incharge = incharge;
         this.hasProjector = hasProjector;
